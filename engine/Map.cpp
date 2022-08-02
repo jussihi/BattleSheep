@@ -19,6 +19,9 @@ m_pieces_left(w_players * 4)
   int left = (right - 1) * -1;
   int bottom = ( 10 + (w_players - 1) * 12);
   int top = bottom * -1;
+
+  m_size   = Point2i((left * -1) + right + 1, bottom * 2 + 1);
+  m_origin = Point2i(left * -1, bottom);
   
   /* Generate a pointy-top field */
   for (int r = top; r <= bottom; r++)
@@ -27,15 +30,15 @@ m_pieces_left(w_players * 4)
     for (int q = left - r_offset; q <= right - r_offset; q++)
     {
       /* At start no playing field is activated for use */
-      m_playground.insert( { Hex(q, r, -q-r), false } );
+      m_playground.insert( { Hex(q, r, -q-r), { HEX_OOB, 0 } } );
     }
   }
 
   /* Place the first piece to the field */
-  m_playground[Hex(0, 0, 0)]  = true;
-  m_playground[Hex(1, -1, 0)] = true;
-  m_playground[Hex(1, 0, -1)] = true;
-  m_playground[Hex(0, 1, -1)] = true;
+  m_playground[Hex(0, 0, 0)]  = { HEX_FREE, 0 };
+  m_playground[Hex(1, -1, 0)] = { HEX_FREE, 0 };
+  m_playground[Hex(1, 0, -1)] = { HEX_FREE, 0 };
+  m_playground[Hex(0, 1, -1)] = { HEX_FREE, 0 };
   m_pieces_left -= 1;
 }
 
@@ -65,12 +68,11 @@ bool Map::InsertPiece(const Hex& h, unsigned int rotation)
     auto search = m_playground.find(candidate);
     if(search == m_playground.end())
     {
-      // std::cout << "we dropped from the grid" << std::endl;
       return false;
     }
 
-    /* Then that it is not already occupied */
-    if(search->second == true)
+    /* Then that it is not already occupied, i.e., it still needs to be oob */
+    if(search->second.first != HEX_OOB)
     {
       return false;
     }
@@ -87,7 +89,7 @@ bool Map::InsertPiece(const Hex& h, unsigned int rotation)
          */
         continue;
       }
-      if(search_neighbor->second == true)
+      if(search_neighbor->second.first == HEX_FREE)
       {
         has_neighbour = true;
         break;
@@ -100,7 +102,7 @@ bool Map::InsertPiece(const Hex& h, unsigned int rotation)
   {
     for(auto& elem: candidateHexes)
     {
-      m_playground[elem] = true;
+      m_playground[elem] = { HEX_FREE, 0 };
       std::cout << "Inserted hex " << elem << std::endl;
     }
     std::cout << "\n\n" << std::endl;
@@ -117,20 +119,20 @@ void Map::InsertRandomPiece()
     return;
   
   /* Try adding a piece until it succeeds */
-  std::unordered_map<Hex, bool>::iterator random_hex;
+  std::unordered_map<Hex, std::pair<uint8_t, uint8_t>>::iterator random_hex;
   int random_rotation;
   do
   {
     std::random_device rd;
     std::mt19937 rng(rd());
 
-    /* Get random hex that is not yet allocated */
+    /* Get random hex that is not yet allocated, i.e., find a currently-OOB Hex */
     std::uniform_int_distribution<int> rand_hex_uni(0, m_playground.size() - 1);
     do
     {
       auto random_hexno = rand_hex_uni(rng);
       random_hex = std::next(std::begin(m_playground), random_hexno);
-    } while(random_hex->second == true);
+    } while(random_hex->second.first != HEX_OOB);
 
     /* Generate random rotation */
     std::uniform_int_distribution<int> rand_rot_uni(0, 2);

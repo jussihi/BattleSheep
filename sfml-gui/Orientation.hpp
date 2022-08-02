@@ -12,10 +12,10 @@ public:
     b0(b0_), b1(b1_), b2(b2_), b3(b3_),
     start_angle(start_angle_) {}
 
-    const double f0, f1, f2, f3;
-    const double b0, b1, b2, b3;
-    const double start_angle; // in multiples of 60 degrees
-}
+  const double f0, f1, f2, f3;
+  const double b0, b1, b2, b3;
+  const double start_angle; // in multiples of 60 degrees
+};
 
 
 const Orientation layout_pointy
