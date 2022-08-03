@@ -32,23 +32,24 @@ int main(void)
   float dt = 0.f;
   sf::Clock dtClock;
   int mapsize = 30;
-  float currZoom = 1.f;
+  float currZoom = 1.8f;
 
 
   // Initialize the main window
-  sf::RenderWindow window(sf::VideoMode(800, 600), "battlesheep");
+  sf::RenderWindow window(sf::VideoMode(1000, 800), "battlesheep");
+
+  // initialize the engine map and GUI map classes
+  Map map(2);
+  map.RandomGenerateMap();
+  GuiMap guiMap(layout_pointy, map, 50);
 
   // Main camera view
   sf::View camera;
   // the camera size
   camera.setSize(window.getSize().x * currZoom, window.getSize().y * currZoom);
   // camera position (origin!)
-  camera.setCenter(window.getSize().x / 2.f, window.getSize().y / 2.f);
-
-  // initialize the engine map and GUI map classes
-  Map map(2);
-  map.RandomGenerateMap();
-  GuiMap guiMap(layout_pointy, map, 50);
+  Point2f mapOrigin = guiMap.GetOriginPixel();
+  camera.setCenter(mapOrigin.x, mapOrigin.y);
   
 
   while(window.isOpen())

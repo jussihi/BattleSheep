@@ -95,3 +95,9 @@ void GuiMap::MouseHover(Point2f p)
 
   searchHex->SetHighlight(true);
 }
+
+Point2f GuiMap::GetOriginPixel()
+{
+  return Point2f((m_gridOrigin.x + 1) * m_hexSize.x  * std::sqrt(3),
+                 (m_gridOrigin.y + 1) * m_hexSize.y * 1.5f);
+}

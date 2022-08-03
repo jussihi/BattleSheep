@@ -13,6 +13,7 @@ public:
   void DrawMap(sf::RenderTarget& _target, sf::RenderStates _states);
   std::vector<GuiHex>::iterator PixelToGuiHex(Point2f p);
   void MouseHover(Point2f p);
+  Point2f GetOriginPixel();
 
 private:
   const Orientation m_gridOrientation;
