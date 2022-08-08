@@ -28,11 +28,12 @@ m_playground(engineMap_.GetPlayground())
 
 
 std::unordered_map<int, sf::Color> GridColors {
-  { HEX_FREE,  sf::Color::Green },
-  { HEX_WHITE, sf::Color::White },
-  { HEX_BLUE,  sf::Color::Blue  },
-  { HEX_RED,   sf::Color::Red   },
-  { HEX_BLACK, sf::Color::Black },
+  { HEX_FREE,  sf::Color::Green   },
+  { HEX_WHITE, sf::Color::White   },
+  { HEX_BLUE,  sf::Color::Blue    },
+  { HEX_RED,   sf::Color::Red     },
+  { HEX_BLACK, sf::Color::Black   },
+  { HEX_EDGE,  sf::Color::Yellow  },
   { HEX_OOB,   sf::Color(0, 0, 0, 200)  }
 };
 
@@ -101,3 +102,4 @@ Point2f GuiMap::GetOriginPixel()
   return Point2f((m_gridOrigin.x + 1) * m_hexSize.x  * std::sqrt(3),
                  (m_gridOrigin.y + 1) * m_hexSize.y * 1.5f);
 }
+

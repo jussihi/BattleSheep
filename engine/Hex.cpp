@@ -15,6 +15,17 @@ Hex::~Hex()
 
 }
 
+Hex& Hex::operator = (const Hex& other)
+{
+  if (this != &other)
+  {
+    m_q = other.m_q;
+    m_r = other.m_r;
+    m_s = other.m_s;
+  }
+  return *this;
+}
+
 bool Hex::operator == (const Hex& other) const
 {
   return m_q == other.m_q && m_r == other.m_r && m_s == other.m_s;

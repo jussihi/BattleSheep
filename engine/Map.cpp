@@ -109,6 +109,10 @@ bool Map::InsertPiece(const Hex& h, unsigned int rotation)
     m_pieces_left -= 1;
   }
 
+  /* When all of the pieces have been inserted, we can find the edges */
+  if(m_pieces_left == 0)
+    FindEdges();
+
   return has_neighbour;
 }
 
@@ -144,4 +148,61 @@ void Map::RandomGenerateMap()
 {
   while(m_pieces_left > 0)
     InsertRandomPiece();
+}
+
+void Map::FindEdges()
+{
+  /*
+   * First we start moving on the grid from the origin to the upper left
+   * direction, when we hit the edge of the playfield, we come back to the last
+   * Hex which was marked as HEX_FREE.
+   */
+  Hex last_free_hex = Hex(0, 0, 0);
+  Hex curr_hex = Hex(0, 0, 0);
+
+  /* direction 5 is the "10 or 11 o-clock" direction */
+  std::unordered_map<Hex, std::pair<uint8_t, uint8_t>>::iterator search;
+  while((search = m_playground.find(hex_neighbor(curr_hex, 5))) !=
+         m_playground.end())
+  {
+    curr_hex = search->first;
+    if(search->second.first == HEX_FREE)
+      last_free_hex = search->first;
+  }
+
+  /*
+   * When we have found at least one edge Hex, we can start going through the rest
+   * of the Hexes
+   *
+   * First we start from the direction 1, because it is the "rightmost" direction where
+   * another free Hex can be located.
+   *
+   * After the first special case, we will continue with an algorithm that works as
+   * follows: Find the next neighbour by rotating the direction from the last found
+   * neighbour's direction substituted by one. Move on to the next Hex and repeat
+   * the process, until we have come back and found the first Hex added at least twice.
+   */
+  curr_hex = last_free_hex;
+
+  /* Large number, mod6 == 1 */
+  int last_direction = 199;
+  int last_free_hex_cnt = 0;
+  /* Lazy way to iterate through the playground at worst 3 times */
+  while(last_free_hex_cnt < 3)
+  {
+    if(curr_hex == last_free_hex)
+      last_free_hex_cnt++;
+    for(last_direction = last_direction - 1; last_direction < last_direction + 5; last_direction++)
+    {
+      auto next_hex_search = m_playground.find(hex_neighbor(curr_hex, last_direction % 6));
+      if(next_hex_search == m_playground.end())
+        continue;
+      if(next_hex_search->second.first == HEX_FREE || next_hex_search->second.first == HEX_EDGE)
+      {
+        next_hex_search->second.first = HEX_EDGE;
+        curr_hex = next_hex_search->first;
+        break;
+      }
+    }
+  }
 }

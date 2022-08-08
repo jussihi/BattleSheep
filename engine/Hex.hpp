@@ -14,12 +14,13 @@ public:
   Hex(const int& w_q, const int& w_r, const int& w_s);
   ~Hex();
 
+  Hex& operator = (const Hex& other);
   bool operator == (const Hex& other) const;
   bool operator != (const Hex& other) const;
   friend std::ostream& operator << (std::ostream& out, const Hex& h);
 
   /* Storage for cube coordinates */
-  const int m_q, m_r, m_s;
+  int m_q, m_r, m_s;
 
 private:
   
@@ -51,10 +52,14 @@ static inline int hex_distance(const Hex& a, const Hex& b)
   return hex_length(hex_subtract(a, b));
 }
 
+/*
+ * The directions "clockwise". Starts always from the right-top Hex,
+ * both in flat and pointy hex systems.
+ */
 const std::vector<Hex> hex_directions =
 {
-  Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1), 
-  Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
+  Hex(1, -1, 0), Hex(1, 0, -1), Hex(0, 1, -1),
+  Hex(-1, 1, 0), Hex(-1, 0, 1), Hex(0, -1, 1)
 };
 
 Hex hex_direction(int direction /* 0 to 5 */);

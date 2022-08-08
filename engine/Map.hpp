@@ -16,8 +16,9 @@
 #define HEX_BLUE      0x02
 #define HEX_RED       0x04
 #define HEX_BLACK     0x08
+#define HEX_EDGE      0x40
 #define HEX_OOB       0x80
-#define HEX_NONFREE   0xFF
+#define HEX_NONFREE   (0xFF & ~HEX_EDGE)
 
 /* 
  * Custom specialization of std::hash for the Hex object, 
@@ -52,6 +53,7 @@ public:
   Point2i GetOrigin() const { return m_origin; };
   const std::unordered_map<Hex, std::pair<uint8_t, uint8_t>>& GetPlayground() const { return m_playground; };
 private:
+  void FindEdges();
   std::unordered_map<Hex, std::pair<uint8_t, uint8_t>> m_playground;
   // std::unordered_map<Hex,  int> m_allocated_playground;
   int m_pieces_left;
