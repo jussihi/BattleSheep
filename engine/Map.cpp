@@ -150,6 +150,19 @@ void Map::RandomGenerateMap()
     InsertRandomPiece();
 }
 
+void Map::ClearMap()
+{
+  for(auto& it : m_playground)
+  {
+    if(it.second.first != HEX_OOB)
+    {
+      /* Clear the tile */
+      it.second.first &= (HEX_FREE | HEX_EDGE);
+      it.second.second = 0;
+    }
+  }
+}
+
 void Map::FindEdges()
 {
   /*

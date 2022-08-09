@@ -48,6 +48,7 @@ public:
   bool InsertPiece(const Hex& h, unsigned int rotation);
   void InsertRandomPiece();
   void RandomGenerateMap();
+  void ClearMap();
   int GetPiecesLeft() { return m_pieces_left; };
   Point2i GetSize() const { return m_size; };
   Point2i GetOrigin() const { return m_origin; };
