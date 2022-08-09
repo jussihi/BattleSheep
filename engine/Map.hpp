@@ -35,9 +35,9 @@ struct std::hash<Hex>
 
 const std::vector<std::vector<Hex>> piece_rotations =
 {
-  {Hex(0, 0, 0), Hex(1, -1, 0), Hex(0, -1, 1), Hex(1, 0, -1)},
-  {Hex(0, 0, 0), Hex(1, 0, -1), Hex(0, 1, -1), Hex(-1, 1, 0)},
-  {Hex(0, 0, 0), Hex(0, 1, -1), Hex(-1, 1, 0), Hex(-1, 0, 1)}
+  {Hex(0, 0, 0), Hex(1, 0, -1), Hex(0, 1, -1), Hex(-1, 1, 0)},  /*  /  */
+  {Hex(0, 0, 0), Hex(1, -1, 0), Hex(1, 0, -1), Hex(0, 1, -1)},  /*  |  */
+  {Hex(0, 0, 0), Hex(0, -1, 1), Hex(1, -1, 0), Hex(1, 0, -1)}   /*  \  */
 };
 
 class Map
