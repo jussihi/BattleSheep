@@ -95,10 +95,10 @@ bool Game::CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const i
 
   /*
    * If the Hex we are ought to move from does not match the current player in turn or has
-   * only 0-1 pieces on it, we can bail out
+   * less pieces than "w_pieces" +1 on it, we can bail out
    */
   const std::pair<uint8_t, uint8_t>& from_hex_state = m_map.GetHexState(w_hex_from);
-  if(from_hex_state.first & *m_curr_turn == 0 || from_hex_state.second < 2)
+  if(from_hex_state.first & *m_curr_turn == 0 || from_hex_state.second < w_pieces + 1)
   {
     return false;
   }
