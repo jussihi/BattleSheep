@@ -42,12 +42,12 @@ static inline Hex hex_multiply(const Hex& hex, int k)
   return Hex(hex.m_q * k, hex.m_r * k, hex.m_s * k);
 }
 
-static inline int hex_length(const Hex& hex)
+static inline unsigned int hex_length(const Hex& hex)
 {
-  return int((std::abs(hex.m_q) + std::abs(hex.m_r) + std::abs(hex.m_s)) / 2);
+  return (unsigned int)((std::abs(hex.m_q) + std::abs(hex.m_r) + std::abs(hex.m_s)) / 2);
 }
 
-static inline int hex_distance(const Hex& a, const Hex& b)
+static inline unsigned int hex_distance(const Hex& a, const Hex& b)
 {
   return hex_length(hex_subtract(a, b));
 }
@@ -65,3 +65,8 @@ const std::vector<Hex> hex_directions =
 Hex hex_direction(int direction /* 0 to 5 */);
 
 Hex hex_neighbor(Hex hex, int direction);
+
+/*
+ * Returns -1 if the given hexes are not on "straight" line
+ */
+int hex_get_line_direction(const Hex& w_from, const Hex& w_to);

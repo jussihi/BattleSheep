@@ -1,9 +1,8 @@
-#include "Map.hpp"
+#include "Game.hpp"
 
 
 int main(void)
 {
-  Map map(2);
-  map.RandomGenerateMap();
-  return 0;
+  Game game(2);
+  game.RandomGenerateMap();
 }

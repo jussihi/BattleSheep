@@ -15,6 +15,7 @@ SET(CMAKE_CXX_FLAGS "-g")
 SET(SOURCES
   Hex.hpp Hex.cpp
   Map.hpp Map.cpp
+  Game.hpp Game.cpp
   Point.hpp
   main.cpp)
 

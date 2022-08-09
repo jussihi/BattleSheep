@@ -20,8 +20,8 @@
 #define HEX_OOB       0x80
 #define HEX_NONFREE   (0xFF & ~HEX_EDGE)
 
-/* 
- * Custom specialization of std::hash for the Hex object, 
+/*
+ * Custom specialization of std::hash for the Hex object,
  * needed for std::unordered_map
  */
 template<>
@@ -47,17 +47,18 @@ public:
   ~Map();
   bool InsertPiece(const Hex& h, unsigned int rotation);
   void InsertRandomPiece();
-  void RandomGenerateMap();
+  void RandomGenerateMap(int w_pieces);
+  std::vector<Hex> GetActiveMap();
+  const std::pair<uint8_t, uint8_t>& GetHexState(const Hex& w_hex);
   void ClearMap();
-  int GetPiecesLeft() { return m_pieces_left; };
+  void FindEdges();
   Point2i GetSize() const { return m_size; };
   Point2i GetOrigin() const { return m_origin; };
   const std::unordered_map<Hex, std::pair<uint8_t, uint8_t>>& GetPlayground() const { return m_playground; };
+
 private:
-  void FindEdges();
   std::unordered_map<Hex, std::pair<uint8_t, uint8_t>> m_playground;
-  // std::unordered_map<Hex,  int> m_allocated_playground;
-  int m_pieces_left;
+  // std::unordered_map<Hex, int> m_allocated_playground;
   Point2i m_size;
   Point2i m_origin;
 };

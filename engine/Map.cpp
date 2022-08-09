@@ -8,8 +8,7 @@
 
 
 
-Map::Map(const int w_players) :
-m_pieces_left(w_players * 4)
+Map::Map(const int w_players)
 {
   /*
    * First we create an empty playing field with enough hexes to accommodate
@@ -39,7 +38,6 @@ m_pieces_left(w_players * 4)
   m_playground[Hex(1, -1, 0)] = { HEX_FREE, 0 };
   m_playground[Hex(1, 0, -1)] = { HEX_FREE, 0 };
   m_playground[Hex(0, 1, -1)] = { HEX_FREE, 0 };
-  m_pieces_left -= 1;
 }
 
 
@@ -106,22 +104,13 @@ bool Map::InsertPiece(const Hex& h, unsigned int rotation)
       std::cout << "Inserted hex " << elem << std::endl;
     }
     std::cout << "\n\n" << std::endl;
-    m_pieces_left -= 1;
   }
-
-  /* When all of the pieces have been inserted, we can find the edges */
-  if(m_pieces_left == 0)
-    FindEdges();
 
   return has_neighbour;
 }
 
 void Map::InsertRandomPiece()
-{
-  /* Sanity check */
-  if(m_pieces_left <= 0)
-    return;
-  
+{ 
   /* Try adding a piece until it succeeds */
   std::unordered_map<Hex, std::pair<uint8_t, uint8_t>>::iterator random_hex;
   int random_rotation;
@@ -144,10 +133,26 @@ void Map::InsertRandomPiece()
   } while(InsertPiece(random_hex->first, random_rotation) == false);
 }
 
-void Map::RandomGenerateMap()
+void Map::RandomGenerateMap(int w_pieces)
 {
-  while(m_pieces_left > 0)
+  for(int i = 0; i < w_pieces; i++)
     InsertRandomPiece();
+  FindEdges();
+}
+
+std::vector<Hex> Map::GetActiveMap()
+{
+  std::vector<Hex> ret;
+  for(auto& it : m_playground)
+    if(it.second.first != HEX_OOB)
+      ret.push_back(it.first);
+
+  return ret;
+}
+
+const std::pair<uint8_t, uint8_t>& Map::GetHexState(const Hex& w_hex)
+{
+  return m_playground.at(w_hex);
 }
 
 void Map::ClearMap()

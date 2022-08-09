@@ -53,3 +53,28 @@ Hex hex_neighbor(Hex hex, int direction)
 {
   return hex_add(hex, hex_direction(direction));
 }
+
+int hex_get_line_direction(const Hex& w_from, const Hex& w_to)
+{
+  /* If none of the directions match, the hexes are not on the same "line" */
+  if(w_from.m_q != w_to.m_q &&
+     w_from.m_r != w_to.m_r &&
+     w_from.m_s != w_to.m_s)
+  {
+    return -1;
+  }
+
+  /* Get the difference between the hexes, then scale to right length (distance 1) */
+  Hex sub = hex_subtract(w_to, w_from);
+  unsigned int len = hex_length(sub);
+  Hex sub_scaled = Hex(sub.m_q / len, sub.m_r / len, sub.m_s / len);
+
+  /* Find the correct direction from the direction vector, return index */
+  for(int i = 0; i < hex_directions.size(); i++)
+  {
+    if(sub_scaled == hex_directions[i])
+      return i;
+  }
+
+  return -1;
+}
