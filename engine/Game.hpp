@@ -23,8 +23,10 @@ public:
   void RandomGenerateMap();
   GameState_t GetCurrGameState() { return m_game_state; };
   int GetCurrRound() { return m_round; };
+  uint8_t GetCurrTurn() { return *m_curr_turn; };
   std::vector<std::pair<std::pair<Hex, Hex>, int>> GetLegalMoves();
   bool CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces);
+  const Map& GetMap() const { return m_map; };
 
 private:
   void StartGameplay();

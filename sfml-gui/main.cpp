@@ -7,7 +7,9 @@
 
 #include "GuiHex.hpp"
 #include "GuiMap.hpp"
-#include "Map.hpp"
+#include "Game.hpp"
+
+#include "Textbox.hpp"
 
 int main(void)
 {
@@ -39,9 +41,9 @@ int main(void)
   sf::RenderWindow window(sf::VideoMode(1000, 800), "battlesheep");
 
   // initialize the engine map and GUI map classes
-  Map map(2);
-  map.RandomGenerateMap();
-  GuiMap guiMap(layout_pointy, map, 50);
+  Game battleSheepGame(2);
+  battleSheepGame.RandomGenerateMap();
+  GuiMap guiMap(layout_pointy, battleSheepGame.GetMap(), 50);
 
   // Main camera view
   sf::View camera;
@@ -50,7 +52,14 @@ int main(void)
   // camera position (origin!)
   Point2f mapOrigin = guiMap.GetOriginPixel();
   camera.setCenter(mapOrigin.x, mapOrigin.y);
-  
+
+  /* The textbox instance */
+  Textbox text1(20, sf::Color::White, true);
+	text1.SetPosition({ static_cast<float>(window.getSize().x) - 100,
+                      static_cast<float>(window.getSize().y) - 100 });
+	text1.SetLimit(true, 2);
+	text1.SetFont(debugTextFont);
+
 
   while(window.isOpen())
   {
@@ -76,6 +85,10 @@ int main(void)
           std::cout << currZoom << std::endl;
           camera.setSize(window.getSize().x * currZoom, window.getSize().y * currZoom);
         }
+      }
+      if (event.type == sf::Event::TextEntered)
+      {
+        text1.TypedOn(event);
       }
     }
 
@@ -119,6 +132,9 @@ int main(void)
 
     // Reset view after rendering, render UI-related stuff
     window.setView(window.getDefaultView());
+
+    // Render textbox at constant location
+    text1.DrawTo(window);
 
     // Update debug text for mouse positiong
     std::stringstream ss;

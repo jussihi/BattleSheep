@@ -13,11 +13,13 @@ SET(CMAKE_CXX_STANDARD 11)
 SET(CMAKE_CXX_FLAGS "-g")
 
 SET(SOURCES
+  Textbox.hpp Textbox.cpp
   GuiHex.hpp GuiHex.cpp
   GuiMap.hpp GuiMap.cpp
   Orientation.hpp
   ../engine/Hex.hpp  ../engine/Hex.cpp
   ../engine/Map.hpp  ../engine/Map.cpp
+  ../engine/Game.hpp  ../engine/Game.cpp
   ../engine/Point.hpp
   main.cpp)
 
