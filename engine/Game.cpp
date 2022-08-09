@@ -36,6 +36,14 @@ void Game::Restart(bool w_keep_map)
   m_round = 0;
 }
 
+void Game::StartGameplay()
+{
+  m_active_map = std::move(m_map.GetActiveMap());
+  m_game_state = STATE_GAMEPLAY;
+  m_curr_turn = m_players.begin();
+  m_map.FindEdges();
+}
+
 bool Game::InsertMapPiece(const Hex& h, unsigned int rotation)
 {
   /* Sanity check */
@@ -52,8 +60,7 @@ bool Game::InsertMapPiece(const Hex& h, unsigned int rotation)
   /* This was the last piece to be inserted, do needed internal changes */
   if(m_pieces_inserted == m_players.size() * 4)
   {
-    m_active_map = std::move(m_map.GetActiveMap());
-    m_game_state = STATE_GAMEPLAY;
+    StartGameplay();
   }
 
   return ret;
@@ -62,9 +69,7 @@ bool Game::InsertMapPiece(const Hex& h, unsigned int rotation)
 void Game::RandomGenerateMap()
 {
   m_map.RandomGenerateMap(m_players.size() * 4 - m_pieces_inserted);
-  m_active_map = std::move(m_map.GetActiveMap());
-  m_game_state = STATE_GAMEPLAY;
-  m_curr_turn = m_players.begin();
+  StartGameplay();
 }
 
 void Game::NextTurn(bool w_advance_round)

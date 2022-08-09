@@ -27,6 +27,7 @@ public:
   bool CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces);
 
 private:
+  void StartGameplay();
   void NextTurn(bool w_advance_round = true);
 
   Map m_map;
