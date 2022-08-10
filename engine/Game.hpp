@@ -22,7 +22,7 @@ const std::map<GameState_t, std::string> game_state_str
 
 struct LegalMoves
 {
-  std::vector<uint8_t> curr_turn;
+  uint8_t curr_turn;
   int round;
   std::vector<std::pair<std::pair<Hex, Hex>, int>> moves;
 };
@@ -40,7 +40,7 @@ public:
   int GetCurrRound() { return m_round; };
   uint8_t GetCurrTurn() { return *m_curr_turn; };
   bool MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces);
-  std::vector<std::pair<std::pair<Hex, Hex>, int>> GetLegalMoves();
+  void GetLegalMoves();
   bool CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces);
   const Map& GetMap() const { return m_map; };
 

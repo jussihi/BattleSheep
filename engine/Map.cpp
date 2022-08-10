@@ -154,6 +154,15 @@ const std::pair<uint8_t, uint8_t>& Map::GetHexState(const Hex& w_hex)
   return m_playground.at(w_hex);
 }
 
+bool Map::SetHexState(const Hex& w_hex, const std::pair<uint8_t, uint8_t>& w_state)
+{
+  auto search = m_playground.find(w_hex);
+  if(search == m_playground.end())
+    return false;
+  search->second = w_state;
+  return true;
+}
+
 void Map::ClearMap()
 {
   for(auto& it : m_playground)

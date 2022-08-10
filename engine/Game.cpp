@@ -81,6 +81,7 @@ void Game::NextTurn(bool w_advance_round)
     m_curr_turn = m_players.begin();
     if(w_advance_round) m_round++;
   }
+  GetLegalMoves();
 }
 
 bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces)
@@ -89,41 +90,83 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_piec
   if(m_game_state != STATE_GAMEPLAY)
     return false;
 
-  /* If we are on round 0, we should allow moving from edge Hex to itself with 16 pieces */
-  if(m_round == 0)
+  /* Lazy way to find a pair from the vector */
+  auto it = std::find_if(m_legal_moves.moves.begin(), m_legal_moves.moves.end(),
+                         [& w_hex_from, & w_hex_to] (const std::pair<std::pair<Hex, Hex>, int>& S)
   {
+    return S.first.first == w_hex_from && S.first.second == w_hex_to;
+  });
 
-  }
-  else /* Basic round when we move pieces from stacks to other stacks */
-  {
+  /* If the move was not found */
+  if(it == std::end(m_legal_moves.moves))
+    return false;
 
-  }
+  uint8_t hex_pieces = m_map.GetHexState(w_hex_from).second;
+  /* Check that the starting Hex has enough pieces for the move */
+  if(hex_pieces <= w_pieces)
+    return false;
 
+  /* Finally, make the move and hand the turn over */
+  m_map.SetHexState(w_hex_from, std::make_pair(*m_curr_turn, hex_pieces - w_pieces));
+  m_map.SetHexState(w_hex_to,   std::make_pair(*m_curr_turn, w_pieces));
 
-  return false;
-success:
+  NextTurn();
 
+  return true;
 }
 
-std::vector<std::pair<std::pair<Hex, Hex>, int>> Game::GetLegalMoves()
+void Game::GetLegalMoves()
 {
-  std::vector<std::pair<std::pair<Hex, Hex>, int>> moves();
-
   /* Sanity check for the right game state */
   if(m_game_state != STATE_GAMEPLAY)
-    return moves;
+    return;
+
+  /* If the legal moves were already checked, bail out */
+  if(m_legal_moves.curr_turn == *m_curr_turn && m_legal_moves.round == m_round)
+    return;
+
+  /* Reset the legal moves data for this turn and round */
+  m_legal_moves.curr_turn = *m_curr_turn;
+  m_legal_moves.round = m_round;
+  m_legal_moves.moves.clear();
+
 
   /* If we are on round 0, we should allow moving from edge Hex to itself with 16 pieces */
   if(m_round == 0)
   {
-    
+    for(auto& elem : m_active_map)
+    {
+      if(m_map.GetHexState(elem).first == HEX_EDGE)
+        m_legal_moves.moves.push_back(std::make_pair(std::make_pair(elem, elem), 16));
+    }
   }
   else /* Basic round when we move pieces from stacks to other stacks */
   {
-
-  }  
-
-  return ;
+    for(auto& elem : m_active_map)
+    {
+      if(m_map.GetHexState(elem).first == *m_curr_turn && m_map.GetHexState(elem).second > 1)
+      {
+        /* Iterate through all the directions, find */
+        for(int i = 0; i < hex_directions.size(); i++)
+        {
+          Hex neigh = hex_neighbor(elem, i);
+          /*
+           * If we cannot traverse to this location (first neighbour is blocked),
+           * bail out and proceed to next direction
+           */
+          if((m_map.GetHexState(elem).first & HEX_NONFREE) != 0)
+            continue;
+          /* Otherwise continue until we hit an edge */
+          do
+          {
+            neigh = hex_neighbor(neigh, i);
+          } while((m_map.GetHexState(hex_neighbor(neigh, i)).first & HEX_NONFREE) == 0);
+          m_legal_moves.moves.push_back(std::make_pair(std::make_pair(elem, neigh),
+                                                       m_map.GetHexState(elem).second - 1));
+        }
+      }
+    }
+  }
 }
 
 bool Game::CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces)

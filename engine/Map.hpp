@@ -50,6 +50,7 @@ public:
   void RandomGenerateMap(int w_pieces);
   std::vector<Hex> GetActiveMap();
   const std::pair<uint8_t, uint8_t>& GetHexState(const Hex& w_hex);
+  bool SetHexState(const Hex& w_hex, const std::pair<uint8_t, uint8_t>& w_state);
   void ClearMap();
   void FindEdges();
   Point2i GetSize() const { return m_size; };
