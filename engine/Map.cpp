@@ -137,7 +137,6 @@ void Map::RandomGenerateMap(int w_pieces)
 {
   for(int i = 0; i < w_pieces; i++)
     InsertRandomPiece();
-  FindEdges();
 }
 
 std::vector<Hex> Map::GetActiveMap()
@@ -170,6 +169,15 @@ void Map::ClearMap()
 
 void Map::FindEdges()
 {
+  /*
+   * If the edges were previously found already, but the map has been altered
+   * in the meantime, we need to clear out all the old edge markings.
+   */
+  for(auto& it : m_playground)
+  {
+    it.second.first &= ~HEX_EDGE;
+  }
+
   /*
    * First we start moving on the grid from the origin to the upper left
    * direction, when we hit the edge of the playfield, we come back to the last
