@@ -83,10 +83,47 @@ void Game::NextTurn(bool w_advance_round)
   }
 }
 
+bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces)
+{
+  /* Sanity check that we are in correct game state */
+  if(m_game_state != STATE_GAMEPLAY)
+    return false;
+
+  /* If we are on round 0, we should allow moving from edge Hex to itself with 16 pieces */
+  if(m_round == 0)
+  {
+
+  }
+  else /* Basic round when we move pieces from stacks to other stacks */
+  {
+
+  }
+
+
+  return false;
+success:
+
+}
+
 std::vector<std::pair<std::pair<Hex, Hex>, int>> Game::GetLegalMoves()
 {
-  /* TODO */
-  return std::vector<std::pair<std::pair<Hex, Hex>, int>>();
+  std::vector<std::pair<std::pair<Hex, Hex>, int>> moves();
+
+  /* Sanity check for the right game state */
+  if(m_game_state != STATE_GAMEPLAY)
+    return moves;
+
+  /* If we are on round 0, we should allow moving from edge Hex to itself with 16 pieces */
+  if(m_round == 0)
+  {
+    
+  }
+  else /* Basic round when we move pieces from stacks to other stacks */
+  {
+
+  }  
+
+  return ;
 }
 
 bool Game::CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces)

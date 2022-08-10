@@ -13,6 +13,9 @@ m_playground(engineMap_.GetPlayground())
 
   for(auto i : m_playground)
   {
+    if(i.second.first == HEX_OOB)
+      continue;
+
     double x = (m_gridOrientation.f0 * i.first.m_q + m_gridOrientation.f1 * i.first.m_r) * m_hexSize.x;
     double y = (m_gridOrientation.f2 * i.first.m_q + m_gridOrientation.f3 * i.first.m_r) * m_hexSize.y;
 
@@ -33,7 +36,7 @@ std::unordered_map<int, sf::Color> GridColors {
   { HEX_BLUE,  sf::Color::Blue    },
   { HEX_RED,   sf::Color::Red     },
   { HEX_BLACK, sf::Color::Black   },
-  { HEX_EDGE,  sf::Color::Yellow  },
+  { HEX_EDGE,  sf::Color::Green   },
   { HEX_OOB,   sf::Color(0, 0, 0, 200)  }
 };
 
@@ -61,30 +64,37 @@ void GuiMap::DrawMap(sf::RenderTarget& _target, sf::RenderStates _states)
   }
 }
 
+Hex GuiMap::PixelToHex(Point2f p)
+{
+  Point2f pt = Point2f((p.x - (m_gridOrigin.x + 1) * m_hexSize.x  * std::sqrt(3)) / m_hexSize.x,
+                        (p.y - (m_gridOrigin.y + 1) * m_hexSize.y * 1.5f) / m_hexSize.y);
+  double qF = m_gridOrientation.b0 * pt.x + m_gridOrientation.b1 * pt.y;
+  double rF = m_gridOrientation.b2 * pt.x + m_gridOrientation.b3 * pt.y;
+
+  int q = int(round(qF));
+  int r = int(round(rF));
+  int s = int(round(-qF - rF));
+
+  double q_diff = abs(q - qF);
+  double r_diff = abs(r - rF);
+  double s_diff = abs(s - (-qF - rF));
+  if (q_diff > r_diff and q_diff > s_diff)
+    q = -r - s;
+  else if (r_diff > s_diff)
+    r = -q - s;
+  else
+    s = -q - r;
+
+  return Hex(q, r, s);
+}
+
 std::vector<GuiHex>::iterator GuiMap::PixelToGuiHex(Point2f p)
 {
-    Point2f pt = Point2f((p.x - (m_gridOrigin.x + 1) * m_hexSize.x  * std::sqrt(3)) / m_hexSize.x,
-                         (p.y - (m_gridOrigin.y + 1) * m_hexSize.y * 1.5f) / m_hexSize.y);
-    double qF = m_gridOrientation.b0 * pt.x + m_gridOrientation.b1 * pt.y;
-    double rF = m_gridOrientation.b2 * pt.x + m_gridOrientation.b3 * pt.y;
+  Hex to_find = PixelToHex(p);
 
-    int q = int(round(qF));
-    int r = int(round(rF));
-    int s = int(round(-qF - rF));
-
-    double q_diff = abs(q - qF);
-    double r_diff = abs(r - rF);
-    double s_diff = abs(s - (-qF - rF));
-    if (q_diff > r_diff and q_diff > s_diff)
-      q = -r - s;
-    else if (r_diff > s_diff)
-      r = -q - s;
-    else
-      s = -q - r;
-    
-    return std::find_if(m_guiHexes.begin(), m_guiHexes.end(), [&](const GuiHex& o) {
-      return o.GetHex() == Hex(q, r, s);
-    });
+  return std::find_if(m_guiHexes.begin(), m_guiHexes.end(), [&](const GuiHex& o) {
+    return o.GetHex() == to_find;
+  });
 }
 
 void GuiMap::MouseHover(Point2f p)
@@ -102,4 +112,3 @@ Point2f GuiMap::GetOriginPixel()
   return Point2f((m_gridOrigin.x + 1) * m_hexSize.x  * std::sqrt(3),
                  (m_gridOrigin.y + 1) * m_hexSize.y * 1.5f);
 }
-

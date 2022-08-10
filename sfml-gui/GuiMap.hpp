@@ -11,6 +11,7 @@ public:
   GuiMap(Orientation orientation_, const Map& engineMap_, int hexSize_);
   ~GuiMap() {};
   void DrawMap(sf::RenderTarget& _target, sf::RenderStates _states);
+  Hex PixelToHex(Point2f p);
   std::vector<GuiHex>::iterator PixelToGuiHex(Point2f p);
   void MouseHover(Point2f p);
   Point2f GetOriginPixel();

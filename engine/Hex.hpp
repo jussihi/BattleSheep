@@ -26,6 +26,8 @@ private:
   
 };
 
+const Hex hex_invalid(999, -999, 0);
+
 
 static inline Hex hex_add(const Hex& a, const Hex& b)
 {
