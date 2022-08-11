@@ -3,11 +3,13 @@
 #include <iostream>
 
 
-GuiMap::GuiMap(Orientation orientation_, const Map& engineMap_, int hexSize_) :
+GuiMap::GuiMap(Orientation orientation_, const Map& engineMap_,
+               int hexSize_ , const sf::Font& w_font) :
 m_gridOrientation(orientation_),
 m_hexSize(Point2i(50, 50)),
 m_gridOrigin(engineMap_.GetOrigin()),
-m_playground(engineMap_.GetPlayground())
+m_playground(engineMap_.GetPlayground()),
+m_font(w_font)
 {
   std::cout << "initialized map with size " << m_hexSize.x << ", " << m_hexSize.y << " and origin " << m_gridOrigin.x << ", " << m_gridOrigin.y << std::endl;
 
@@ -23,9 +25,9 @@ m_playground(engineMap_.GetPlayground())
     x += (m_gridOrigin.x + 1) * m_hexSize.x * std::sqrt(3);
     y += (m_gridOrigin.y + 1) * m_hexSize.y * 1.5f;
 
-    GuiHex newHex(m_hexSize.x - 2, true, sf::Color::Green, i.first);
+    GuiHex newHex(m_hexSize.x - 2, true, sf::Color::Green, i.first, m_font);
     newHex.setPosition(x, y);
-    m_guiHexes.push_back(newHex);
+    m_guiHexes.push_back(std::move(newHex));
   }
 }
 

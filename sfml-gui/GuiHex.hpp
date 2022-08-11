@@ -11,7 +11,7 @@
 class GuiHex: public sf::Drawable, public sf::Transformable
 {
 public:
-  GuiHex(int nRadius, bool bVisible, sf::Color _color, const Hex& hex);
+  GuiHex(int nRadius, bool bVisible, sf::Color _color, const Hex& hex, const sf::Font& w_font);
   ~GuiHex() {};
   void SetVisible(bool w_visible);
   bool GetVisible(void);
@@ -30,9 +30,12 @@ public:
   Hex GetHex() const { return m_hex; };
 
 private:
-  sf::VertexArray m_vertex;
-  sf::Texture m_texture;
+  sf::VertexArray m_hex_vertex;
+  sf::Texture m_hex_texture;
   sf::Shader *m_shader;
+  sf::CircleShape m_circle;
+  sf::Text m_text;
+  const sf::Font& m_font;
   bool m_visible;
   bool m_active;
   bool m_highlight;

@@ -44,6 +44,7 @@ int main(void)
   sf::Text     statusText;
   sf::Text     hintText;
   sf::Font     defaultTextFont;
+  defaultTextFont.loadFromFile("DroidSans.ttf");
 
 
   // Init game settings
@@ -60,13 +61,15 @@ int main(void)
   BattleSheepStateGUI stateGUI;
 
   // Initialize the main window
-  sf::RenderWindow window(sf::VideoMode(1000, 800), "battlesheep");
+  sf::ContextSettings settings;
+  settings.antialiasingLevel = 8.0;
+  sf::RenderWindow window(sf::VideoMode(1000, 800), "battlesheep", sf::Style::Default, settings);
   window.setFramerateLimit(60);
 
   // initialize the engine map and GUI map classes
   Game battleSheepGame(2);
   battleSheepGame.RandomGenerateMap();
-  GuiMap guiMap(layout_pointy, battleSheepGame.GetMap(), 50);
+  GuiMap guiMap(layout_pointy, battleSheepGame.GetMap(), 50, defaultTextFont);
 
   // Main camera view
   sf::View camera;
@@ -89,7 +92,6 @@ int main(void)
   hintText.setPosition(20.f, 50.f);
 
   /* Add debug text to the screen */
-  defaultTextFont.loadFromFile("DroidSans.ttf");
   debugText.setCharacterSize(30);
   debugText.setFillColor(sf::Color::White);
   debugText.setFont(defaultTextFont);
