@@ -104,7 +104,7 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_piec
 
   uint8_t hex_pieces = m_map.GetHexState(w_hex_from).second;
   /* Check that the starting Hex has enough pieces for the move */
-  if(hex_pieces <= w_pieces)
+  if(hex_pieces <= w_pieces && m_round != 0 || (m_round == 0 && w_pieces != 16))
     return false;
 
   /* Finally, make the move and hand the turn over */
