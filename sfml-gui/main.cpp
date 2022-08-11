@@ -136,15 +136,14 @@ int main(void)
       }
       if (event.type == sf::Event::MouseButtonPressed)
       {
-        /*
         if (event.mouseButton.button == sf::Mouse::Right)
         {
           mouseOldPos = sf::Vector2f(sf::Mouse::getPosition(window));
           dragging = true;
         }
-        */
         if (event.mouseButton.button == sf::Mouse::Left)
         {
+          std::cout << "left" << std::endl;
           switch(stateGUI.game_state)
           {
             case(STATE_MAPGEN):
@@ -154,13 +153,25 @@ int main(void)
             }
             case(STATE_GAMEPLAY):
             {
+              std::cout << "GAMEPLAY" << std::endl;
               /*
                * If it is the first round of the gameplay, the player only chooses one starting Hex
                * which should be on the edge of the playfield. This is a special case.
                */
               if(stateGUI.curr_round == 0)
               {
-                /* TODO: First move handling here - ONLY REQUIRES ONE MOUSE PRESS */
+                std::cout << "round0" << std::endl;
+                /* 
+                 * The first round, when players choose to put their complete stack on one hex,
+                 * only requires one click
+                 */
+                std::vector<GuiHex>::iterator selected_gui_hex = 
+                                  guiMap.PixelToGuiHex(Point2f(mousePosView.x, mousePosView.y));
+                Hex selected_hex = selected_gui_hex->GetHex();
+                if(battleSheepGame.MakeMove(selected_hex, selected_hex, 16) == true)
+                {
+                  selected_gui_hex->UpdateStatus(16, stateGUI.curr_turn);
+                }
                 break;
               }
               /*
@@ -183,36 +194,6 @@ int main(void)
             }
           }
         }
-      }
-      if (event.type == sf::Event::MouseButtonReleased)
-      {
-        if (event.mouseButton.button == sf::Mouse::Right)
-        {
-          dragging = false;
-        }
-      }
-      if (event.type == sf::Event::MouseMoved)
-      {
-        // Ignore mouse movement unless a button is pressed (see above)
-        if (!dragging)
-            break;
-        // Determine the new position in world coordinates
-        const sf::Vector2f newPos = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
-        // Determine how the cursor has moved
-        // Swap these to invert the movement direction
-        sf::Vector2f deltaPos = mouseOldPos - newPos;
-
-        // Applying zoom "reduction" (or "augmentation")
-        deltaPos.x *= currZoom;
-        deltaPos.y *= currZoom;
-
-        // Move our view accordingly and update the window
-        camera.move(deltaPos); // <-- Here I use move
-        window.setView(camera);
-
-        // Save the new position as the old one
-        // We're recalculating this, since we've changed the view
-        mouseOldPos = newPos; // With move, I don't need to recalculate
       }
     }
 
@@ -241,8 +222,35 @@ int main(void)
 
     if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
     {
-      mouseOldPos = sf::Vector2f(sf::Mouse::getPosition(window));
-      dragging = true;
+      if(!dragging)
+      {
+        mouseOldPos = sf::Vector2f(sf::Mouse::getPosition(window));
+        dragging=true;
+      }
+      else
+      {
+        // Determine the new position in world coordinates
+        const sf::Vector2f newPos = sf::Vector2f(sf::Mouse::getPosition(window));
+        // Determine how the cursor has moved
+        // Swap these to invert the movement direction
+        sf::Vector2f deltaPos = mouseOldPos - newPos;
+
+        // Applying zoom "reduction" (or "augmentation")
+        deltaPos.x *= currZoom;
+        deltaPos.y *= currZoom;
+
+        // Move our view accordingly and update the window
+        camera.move(deltaPos);
+        window.setView(camera);
+
+        // Save the new position as the old one
+        // We're recalculating this, since we've changed the view
+        mouseOldPos = newPos;
+      }
+    }
+    else
+    {
+      dragging = false;
     }
 
     // Render Game-related stuff after setting our camera view

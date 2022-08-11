@@ -26,6 +26,7 @@ public:
   void SetHighlight(bool w_highlight);
   bool GetHighlight(void);
   virtual void draw(sf::RenderTarget& w_target, sf::RenderStates w_states) const;
+  void UpdateStatus(int w_pieces, uint8_t w_color);
 
   Hex GetHex() const { return m_hex; };
 
@@ -41,4 +42,6 @@ private:
   bool m_highlight;
   int m_radius;
   const Hex m_hex;
+  int m_pieces;
+  uint8_t m_color;
 };

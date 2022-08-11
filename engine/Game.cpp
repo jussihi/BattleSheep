@@ -42,6 +42,7 @@ void Game::StartGameplay()
   m_game_state = STATE_GAMEPLAY;
   m_curr_turn = m_players.begin();
   m_map.FindEdges();
+  FindLegalMoves();
 }
 
 bool Game::InsertMapPiece(const Hex& h, unsigned int rotation)
@@ -81,7 +82,7 @@ void Game::NextTurn(bool w_advance_round)
     m_curr_turn = m_players.begin();
     if(w_advance_round) m_round++;
   }
-  GetLegalMoves();
+  FindLegalMoves();
 }
 
 bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces)
@@ -115,7 +116,7 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_piec
   return true;
 }
 
-void Game::GetLegalMoves()
+void Game::FindLegalMoves()
 {
   /* Sanity check for the right game state */
   if(m_game_state != STATE_GAMEPLAY)
@@ -167,6 +168,11 @@ void Game::GetLegalMoves()
       }
     }
   }
+}
+
+const std::vector<std::pair<std::pair<Hex, Hex>, int>>& Game::GetLegalMoves()
+{
+  return m_legal_moves.moves;
 }
 
 bool Game::CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces)

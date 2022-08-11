@@ -11,7 +11,9 @@ m_highlight(false),
 m_radius(w_radius),
 m_hex(w_hex),
 m_circle(w_radius * 0.6f, 50),
-m_font(w_font)
+m_font(w_font),
+m_pieces(0),
+m_color(0)
 {
   /* Create hex */
   int nPoints = 8;
@@ -105,6 +107,12 @@ void GuiHex::SetTexture(sf::Texture w_texture)
   }
 }
 
+void GuiHex::UpdateStatus(int w_pieces, uint8_t w_color)
+{
+  m_pieces = w_pieces;
+  m_color = w_color;
+}
+
 void GuiHex::SetColor(sf::Color w_color)
 {
   for(int i = 0; i < m_hex_vertex.getVertexCount(); i++)
@@ -126,8 +134,11 @@ void GuiHex::draw(sf::RenderTarget& w_target, sf::RenderStates w_states) const
       w_states.shader = m_shader;
 
     w_target.draw(m_hex_vertex, w_states);
-    w_target.draw(m_circle, w_states);
-    w_target.draw(m_text, w_states);
+    if(m_pieces > 0)
+    {
+      w_target.draw(m_circle, w_states);
+      w_target.draw(m_text, w_states);
+    }
   }
 }
 
