@@ -155,7 +155,7 @@ void Game::FindLegalMoves()
            * If we cannot traverse to this location (first neighbour is blocked),
            * bail out and proceed to next direction
            */
-          if((m_map.GetHexState(elem).first & HEX_NONFREE) != 0)
+          if((m_map.GetHexState(neigh).first & HEX_NONFREE) != 0)
             continue;
           /* Otherwise continue until we hit an edge */
           do
