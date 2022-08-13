@@ -1,19 +1,20 @@
 #include "GuiHex.hpp"
 
 #include <cmath>
+#include <map>
 
 
 GuiHex::GuiHex(int w_radius, bool w_visible, sf::Color w_color,
                const Hex& w_hex, const sf::Font& w_font) :
 m_visible(w_visible),
 m_active(false),
-m_highlight(false),
+m_hover_highlight(false),
+m_chosen_highlight(false),
 m_radius(w_radius),
 m_hex(w_hex),
-m_circle(w_radius * 0.6f, 50),
+m_circle(w_radius * 0.65f, 50),
 m_font(w_font),
-m_pieces(0),
-m_color(0)
+m_pieces(0)
 {
   /* Create hex */
   int nPoints = 8;
@@ -33,22 +34,16 @@ m_color(0)
   /* Create circle inside the hex */
   m_circle.setFillColor(sf::Color::White);
   m_circle.setOutlineColor(sf::Color::Black);
-  m_circle.setOutlineThickness(2.f);
-  m_circle.move(sf::Vector2f(static_cast<float>(-m_radius) + w_radius * 0.4f,
-                             static_cast<float>(-m_radius) + w_radius * 0.4f));
+  m_circle.setOutlineThickness(4.f);
+  m_circle.move(sf::Vector2f(static_cast<float>(-m_radius) + w_radius * 0.35f,
+                             static_cast<float>(-m_radius) + w_radius * 0.35f));
 
   /* Create text to be placed inside the circle */
   m_text.setFont(m_font);
   m_text.setFillColor(sf::Color::White);
   m_text.setOutlineColor(sf::Color::Black);
   m_text.setOutlineThickness(2.f);
-  m_text.setCharacterSize(22);
-  m_text.setString("16");
-  sf::FloatRect numRect = m_text.getGlobalBounds();
-  sf::Vector2f numRectCenter(numRect.width / 2.0 + numRect.left, numRect.height / 2.0 + numRect.top);
-  m_text.setOrigin(numRectCenter);
-  m_text.setPosition(m_circle.getPosition().x + m_circle.getRadius(),
-                     m_circle.getPosition().y + m_circle.getRadius());
+  m_text.setCharacterSize(28);
 }
 
 void GuiHex::SetVisible(bool w_visible)
@@ -107,16 +102,31 @@ void GuiHex::SetTexture(sf::Texture w_texture)
   }
 }
 
-void GuiHex::UpdateStatus(int w_pieces, uint8_t w_color)
+
+
+void GuiHex::UpdateStatus(int w_pieces, const sf::Color& w_color)
 {
-  m_pieces = w_pieces;
-  m_color = w_color;
+  m_pieces += w_pieces;
+  // Update tile color
+  m_circle.setFillColor(w_color);
+  // Update tile text and center inside the circle
+  m_text.setString(std::to_string(m_pieces));
+  sf::FloatRect numRect = m_text.getLocalBounds();
+  sf::Vector2f numRectCenter(numRect.width / 2.0 + numRect.left, numRect.height / 2.0 + numRect.top);
+  m_text.setOrigin(numRectCenter);
+  m_text.setPosition(m_circle.getPosition().x + m_circle.getRadius(),
+                     m_circle.getPosition().y + m_circle.getRadius());
 }
 
 void GuiHex::SetColor(sf::Color w_color)
 {
   for(int i = 0; i < m_hex_vertex.getVertexCount(); i++)
     m_hex_vertex[i].color = w_color;
+}
+
+void GuiHex::SetCircleColor(sf::Color w_color)
+{
+  m_circle.setFillColor(w_color);
 }
 
 void GuiHex::SetShader(sf::Shader* w_shader)
@@ -155,13 +165,24 @@ bool GuiHex::GetActive(void)
 }
 
 
-void GuiHex::SetHighlight(bool w_highlight)
+void GuiHex::SetHoverHighlight(bool w_highlight)
 {
-  m_highlight = w_highlight;
+  m_hover_highlight = w_highlight;
 }
 
 
-bool GuiHex::GetHighlight(void)
+bool GuiHex::GetHoverHighlight(void)
 {
-  return m_highlight;
+  return m_hover_highlight;
+}
+
+void GuiHex::SetChosenHighlight(bool w_highlight)
+{
+  m_chosen_highlight = w_highlight;
+}
+
+
+bool GuiHex::GetChosenHighlight(void)
+{
+  return m_chosen_highlight;
 }

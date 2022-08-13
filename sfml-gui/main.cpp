@@ -13,8 +13,9 @@
 
 typedef enum eSelectionStateGUI_t
 {
-  SELECTION_NONE  = 0x00000000,
-  SELECTION_FIRST = 0x00000001
+  SELECTION_NONE   = 0x00000000,
+  SELECTION_FIRST  = 0x00000001,
+  SELECTION_AMOUNT = 0x00000002
 } SelectionStateGUI_t;
 
 struct BattleSheepStateGUI
@@ -24,13 +25,25 @@ struct BattleSheepStateGUI
   curr_round(0),
   curr_turn(1),
   selection_state(SELECTION_NONE),
-  selected_hex(hex_invalid)
+  selected_from_hex(hex_invalid),
+  selected_to_hex(hex_invalid)
   {}
   GameState_t game_state;
   int curr_round;
   uint8_t curr_turn;
   SelectionStateGUI_t selection_state;
-  Hex selected_hex;
+  Hex selected_from_hex;
+  Hex selected_to_hex;
+};
+
+std::map<int, sf::Color> GridColors {
+  { HEX_FREE,  sf::Color::Green   },
+  { HEX_WHITE, sf::Color::White   },
+  { HEX_BLUE,  sf::Color::Blue    },
+  { HEX_RED,   sf::Color::Red     },
+  { HEX_BLACK, sf::Color::Black   },
+  { HEX_EDGE,  sf::Color::Green   },
+  { HEX_OOB,   sf::Color(0, 0, 0, 200)  }
 };
 
 int main(void)
@@ -45,6 +58,7 @@ int main(void)
   sf::Text     hintText;
   sf::Font     defaultTextFont;
   defaultTextFont.loadFromFile("DroidSans.ttf");
+  defaultTextFont.setSmooth(false);
 
 
   // Init game settings
@@ -62,7 +76,7 @@ int main(void)
 
   // Initialize the main window
   sf::ContextSettings settings;
-  settings.antialiasingLevel = 8.0;
+  settings.antialiasingLevel = 4.0;
   sf::RenderWindow window(sf::VideoMode(1000, 800), "battlesheep", sf::Style::Default, settings);
   window.setFramerateLimit(60);
 
@@ -98,11 +112,11 @@ int main(void)
   debugText.setPosition(20.f, static_cast<float>(window.getSize().y) - 120);
 
   /* The textbox instance */
-  Textbox text1(20, sf::Color::White, true);
-	text1.SetPosition({ static_cast<float>(window.getSize().x) - 100,
-                      static_cast<float>(window.getSize().y) - 100 });
+  Textbox text1(24, sf::Color::Black, false);
 	text1.SetLimit(true, 2);
 	text1.SetFont(defaultTextFont);
+  text1.setPosition(window.getDefaultView().getCenter().x,
+                    window.getDefaultView().getCenter().y + window.getDefaultView().getSize().y * 0.25);
 
 
   while(window.isOpen())
@@ -134,6 +148,38 @@ int main(void)
       {
         text1.TypedOn(event);
       }
+      if (event.type == sf::Event::KeyPressed)
+      {
+        if(event.key.code == sf::Keyboard::Escape)
+        {
+          /* Reset GUI state for this round */
+          stateGUI.selected_from_hex = hex_invalid;
+          stateGUI.selected_to_hex = hex_invalid;
+          stateGUI.selection_state = SELECTION_NONE;
+          text1.SetSelected(false);
+        }
+        if(event.key.code == sf::Keyboard::Return)
+        {
+          /* Try to make a move */
+          if(stateGUI.selection_state == SELECTION_AMOUNT)
+          {
+            int pieces = std::stoi(text1.GetText());
+            if(battleSheepGame.MakeMove(stateGUI.selected_from_hex, 
+                                        stateGUI.selected_to_hex, pieces) == true)
+            {
+              GuiHex& from_gui_hex = guiMap.HexToGuiHex(stateGUI.selected_from_hex);
+              GuiHex& to_gui_hex   = guiMap.HexToGuiHex(stateGUI.selected_to_hex);
+              to_gui_hex.UpdateStatus(pieces, GridColors.at(stateGUI.curr_turn));
+              from_gui_hex.UpdateStatus(-pieces, GridColors.at(stateGUI.curr_turn));
+            }
+            /* Reset GUI state for this round */
+            stateGUI.selected_from_hex = hex_invalid;
+            stateGUI.selected_to_hex = hex_invalid;
+            stateGUI.selection_state = SELECTION_NONE;
+            text1.SetSelected(false);
+          }
+        }
+      }
       if (event.type == sf::Event::MouseButtonPressed)
       {
         if (event.mouseButton.button == sf::Mouse::Right)
@@ -143,7 +189,6 @@ int main(void)
         }
         if (event.mouseButton.button == sf::Mouse::Left)
         {
-          std::cout << "left" << std::endl;
           switch(stateGUI.game_state)
           {
             case(STATE_MAPGEN):
@@ -153,24 +198,23 @@ int main(void)
             }
             case(STATE_GAMEPLAY):
             {
-              std::cout << "GAMEPLAY" << std::endl;
               /*
                * If it is the first round of the gameplay, the player only chooses one starting Hex
                * which should be on the edge of the playfield. This is a special case.
                */
               if(stateGUI.curr_round == 0)
               {
-                std::cout << "round0" << std::endl;
                 /* 
                  * The first round, when players choose to put their complete stack on one hex,
                  * only requires one click
                  */
-                std::vector<GuiHex>::iterator selected_gui_hex = 
-                                  guiMap.PixelToGuiHex(Point2f(mousePosView.x, mousePosView.y));
-                Hex selected_hex = selected_gui_hex->GetHex();
+                Hex selected_hex = guiMap.PixelToHex(Point2f(mousePosView.x, mousePosView.y));
+                if(selected_hex == hex_invalid)
+                  break;
+                GuiHex& selected_gui_hex = guiMap.HexToGuiHex(selected_hex);
                 if(battleSheepGame.MakeMove(selected_hex, selected_hex, 16) == true)
                 {
-                  selected_gui_hex->UpdateStatus(16, stateGUI.curr_turn);
+                  selected_gui_hex.UpdateStatus(16, GridColors.at(stateGUI.curr_turn));
                 }
                 break;
               }
@@ -179,7 +223,55 @@ int main(void)
                * for the Source Hex and one for the destination Hex. The source Hex is kept inside
                * the BattleSheepStateGUI struct's "selected_hex" variable 
                */
-              
+              switch(stateGUI.selection_state)
+              {
+                /* First keypress */
+                case SELECTION_NONE:
+                {
+                  Hex selected_hex = guiMap.PixelToHex(Point2f(mousePosView.x, mousePosView.y));
+                  if(selected_hex == hex_invalid)
+                    break;
+                  /* Check if this hex is the starting hex of any legal move */
+                  auto legal_moves = battleSheepGame.GetLegalMoves();
+                  auto search = std::find_if(legal_moves.begin(), legal_moves.end(),
+                                             [&](const std::pair<std::pair<Hex, Hex>, int>& o) {
+                                                return o.first.first == selected_hex;
+                                              });
+                  if(search == legal_moves.end())
+                    break;
+
+                  stateGUI.selected_from_hex = selected_hex;
+                  stateGUI.selection_state = SELECTION_FIRST;
+                  break;
+                }
+                /* Second keypress */
+                case SELECTION_FIRST:
+                {
+                  Hex selected_hex = guiMap.PixelToHex(Point2f(mousePosView.x, mousePosView.y));
+                  if(selected_hex == hex_invalid)
+                    break;
+                  /* Check if any move between these hexes is possible, if not,  */
+                  auto legal_moves = battleSheepGame.GetLegalMoves();
+                  auto search = std::find_if(legal_moves.begin(), legal_moves.end(),
+                                             [&](const std::pair<std::pair<Hex, Hex>, int>& o) {
+                                                return(o.first.first == stateGUI.selected_from_hex
+                                                       && o.first.second == selected_hex);
+                                              });
+                  if(search == legal_moves.end())
+                    break;
+                  stateGUI.selected_to_hex = selected_hex;
+                  stateGUI.selection_state = SELECTION_AMOUNT;
+                  text1.SetHintText("Number of pieces to move?");
+                  text1.SetSelected(true);
+                  break;
+                }
+                case SELECTION_AMOUNT:
+                default:
+                {
+                  /* Default action (none) */
+                  break;
+                }
+              }
               break;
             }
             case(STATE_GAME_OVER):
@@ -270,6 +362,10 @@ int main(void)
     /* Tell GUIMap where the pointer is */
     guiMap.MouseHover(Point2f(mousePosView.x, mousePosView.y));
 
+    /* Tell GUIMap if a hex has been chosen (SELECTION_FIRST) */
+    guiMap.SetChosenHex(stateGUI.selected_from_hex);
+    guiMap.SetChosenHex(stateGUI.selected_to_hex);
+
     // draw hexmap completely
     guiMap.DrawMap(window, sf::RenderStates::Default);
 
@@ -277,7 +373,7 @@ int main(void)
     window.setView(window.getDefaultView());
 
     // Render textbox at constant location
-    text1.DrawTo(window);
+    text1.draw(window, sf::RenderStates::Default);
 
     // Update debug text for mouse positioning
     std::stringstream ss_dbg;

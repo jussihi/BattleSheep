@@ -20,13 +20,16 @@ public:
   bool SetTexture(std::string w_strTexture);
   void SetTexture(sf::Texture w_texture);
   void SetColor(sf::Color w_color);
+  void SetCircleColor(sf::Color w_color);
   void SetShader(sf::Shader* w_shader);
   void SetActive(bool w_ctive);
   bool GetActive(void);
-  void SetHighlight(bool w_highlight);
-  bool GetHighlight(void);
+  void SetHoverHighlight(bool w_highlight);
+  bool GetHoverHighlight(void);
+  void SetChosenHighlight(bool w_highlight);
+  bool GetChosenHighlight(void);
   virtual void draw(sf::RenderTarget& w_target, sf::RenderStates w_states) const;
-  void UpdateStatus(int w_pieces, uint8_t w_color);
+  void UpdateStatus(int w_pieces, const sf::Color& w_color);
 
   Hex GetHex() const { return m_hex; };
 
@@ -39,9 +42,9 @@ private:
   const sf::Font& m_font;
   bool m_visible;
   bool m_active;
-  bool m_highlight;
+  bool m_hover_highlight;
+  bool m_chosen_highlight;
   int m_radius;
   const Hex m_hex;
   int m_pieces;
-  uint8_t m_color;
 };

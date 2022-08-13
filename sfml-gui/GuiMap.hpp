@@ -13,7 +13,9 @@ public:
   void DrawMap(sf::RenderTarget& _target, sf::RenderStates _states);
   Hex PixelToHex(Point2f p);
   std::vector<GuiHex>::iterator PixelToGuiHex(Point2f p);
+  GuiHex& HexToGuiHex(const Hex& w_hex);
   void MouseHover(Point2f p);
+  void SetChosenHex(const Hex& w_chosen_hex);
   Point2f GetOriginPixel();
 
 private:

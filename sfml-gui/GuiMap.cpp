@@ -32,16 +32,6 @@ m_font(w_font)
 }
 
 
-std::unordered_map<int, sf::Color> GridColors {
-  { HEX_FREE,  sf::Color::Green   },
-  { HEX_WHITE, sf::Color::White   },
-  { HEX_BLUE,  sf::Color::Blue    },
-  { HEX_RED,   sf::Color::Red     },
-  { HEX_BLACK, sf::Color::Black   },
-  { HEX_EDGE,  sf::Color::Green   },
-  { HEX_OOB,   sf::Color(0, 0, 0, 200)  }
-};
-
 void GuiMap::DrawMap(sf::RenderTarget& _target, sf::RenderStates _states)
 {
   for(auto& i : m_guiHexes)
@@ -52,14 +42,20 @@ void GuiMap::DrawMap(sf::RenderTarget& _target, sf::RenderStates _states)
       continue;
     }
 
-    // Update tile color
-    i.SetColor(GridColors.at(search->second.first));
-
     /* set hilighted hex color if we should */
-    if(i.GetHighlight())
+    if(i.GetHoverHighlight())
     {
       i.SetColor(sf::Color::Cyan);
-      i.SetHighlight(false);
+      i.SetHoverHighlight(false);
+    }
+    else if(i.GetChosenHighlight())
+    {
+      i.SetColor(sf::Color::Magenta);
+      i.SetChosenHighlight(false);
+    }
+    else
+    {
+      i.SetColor(sf::Color::Green);
     }
 
     i.draw(_target, _states);
@@ -87,7 +83,17 @@ Hex GuiMap::PixelToHex(Point2f p)
   else
     s = -q - r;
 
-  return Hex(q, r, s);
+  Hex ret_candidate(q, r, s);
+
+  /* If we are out of playfield, return invalid Hex */
+  if(std::find_if(m_guiHexes.begin(), m_guiHexes.end(), [&](const GuiHex& o) {
+       return o.GetHex() == ret_candidate;
+     }) == m_guiHexes.end())
+  {
+    return hex_invalid;
+  }
+
+  return ret_candidate;
 }
 
 std::vector<GuiHex>::iterator GuiMap::PixelToGuiHex(Point2f p)
@@ -99,6 +105,14 @@ std::vector<GuiHex>::iterator GuiMap::PixelToGuiHex(Point2f p)
   });
 }
 
+GuiHex& GuiMap::HexToGuiHex(const Hex& w_hex)
+{
+  auto it = std::find_if(m_guiHexes.begin(), m_guiHexes.end(), [&](const GuiHex& o) {
+    return o.GetHex() == w_hex;
+  });
+  return *it;
+}
+
 void GuiMap::MouseHover(Point2f p)
 {
   std::vector<GuiHex>::iterator searchHex = PixelToGuiHex(p);
@@ -106,7 +120,19 @@ void GuiMap::MouseHover(Point2f p)
   if(searchHex == m_guiHexes.end())
     return;
 
-  searchHex->SetHighlight(true);
+  searchHex->SetHoverHighlight(true);
+}
+
+void GuiMap::SetChosenHex(const Hex& w_chosen_hex)
+{
+  auto it = std::find_if(m_guiHexes.begin(), m_guiHexes.end(), [&](const GuiHex& o) {
+    return o.GetHex() == w_chosen_hex;
+  });
+
+  if(it == m_guiHexes.end())
+    return;
+
+  it->SetChosenHighlight(true);
 }
 
 Point2f GuiMap::GetOriginPixel()
