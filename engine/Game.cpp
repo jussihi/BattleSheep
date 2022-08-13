@@ -91,6 +91,10 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_piec
   if(m_game_state != STATE_GAMEPLAY)
     return false;
 
+  /* Sanity check that we are trying to move at least one piece */
+  if(w_pieces < 1)
+    return false;
+
   /* Lazy way to find a pair from the vector */
   auto it = std::find_if(m_legal_moves.moves.begin(), m_legal_moves.moves.end(),
                          [& w_hex_from, & w_hex_to] (const std::pair<std::pair<Hex, Hex>, int>& S)
@@ -158,10 +162,10 @@ void Game::FindLegalMoves()
           if((m_map.GetHexState(neigh).first & HEX_NONFREE) != 0)
             continue;
           /* Otherwise continue until we hit an edge */
-          do
+          while((m_map.GetHexState(hex_neighbor(neigh, i)).first & HEX_NONFREE) == 0)
           {
             neigh = hex_neighbor(neigh, i);
-          } while((m_map.GetHexState(hex_neighbor(neigh, i)).first & HEX_NONFREE) == 0);
+          }
           m_legal_moves.moves.push_back(std::make_pair(std::make_pair(elem, neigh),
                                                        m_map.GetHexState(elem).second - 1));
         }
