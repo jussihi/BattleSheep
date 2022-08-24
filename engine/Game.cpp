@@ -179,6 +179,27 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to,
   return true;
 }
 
+bool Game::IsHexBlocked(const Hex& w_hex) const
+{
+  /* If this hex only has 1 piece on it, it doesn't matter if it's blocked */
+  if(m_map.GetHexState(w_hex).second <= 1)
+    return false;
+  /* Iterate through all the directions */
+  for(int i = 0; i < hex_directions.size(); i++)
+  {
+    Hex neigh = hex_neighbor(w_hex, i);
+    /*
+     * If we cannot traverse to this direction (neighbour is blocked),
+     * bail out and proceed to next direction
+     */
+    if((m_map.GetHexState(neigh).first & HEX_NONFREE) != 0)
+      continue;
+    /* Otherwise the Hex is not blocked */
+    return false;
+  }
+  return true;
+}
+
 void Game::FindLegalMoves()
 {
   /* Sanity check for the right game state */
