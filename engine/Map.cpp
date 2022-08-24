@@ -101,9 +101,9 @@ bool Map::InsertPiece(const Hex& h, unsigned int rotation)
     for(auto& elem: candidateHexes)
     {
       m_playground[elem] = { HEX_FREE, 0 };
-      std::cout << "Inserted hex " << elem << std::endl;
+      //std::cout << "Inserted hex " << elem << std::endl;
     }
-    std::cout << "\n\n" << std::endl;
+    //std::cout << "\n\n" << std::endl;
   }
 
   return has_neighbour;
@@ -149,7 +149,7 @@ std::vector<Hex> Map::GetActiveMap()
   return ret;
 }
 
-const std::pair<uint8_t, uint8_t>& Map::GetHexState(const Hex& w_hex)
+const std::pair<uint8_t, uint8_t>& Map::GetHexState(const Hex& w_hex) const
 {
   return m_playground.at(w_hex);
 }

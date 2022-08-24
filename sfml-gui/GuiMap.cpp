@@ -11,7 +11,7 @@ m_gridOrigin(engineMap_.GetOrigin()),
 m_playground(engineMap_.GetPlayground()),
 m_font(w_font)
 {
-  std::cout << "initialized map with size " << m_hexSize.x << ", " << m_hexSize.y << " and origin " << m_gridOrigin.x << ", " << m_gridOrigin.y << std::endl;
+  //std::cout << "initialized map with size " << m_hexSize.x << ", " << m_hexSize.y << " and origin " << m_gridOrigin.x << ", " << m_gridOrigin.y << std::endl;
 
   for(auto i : m_playground)
   {

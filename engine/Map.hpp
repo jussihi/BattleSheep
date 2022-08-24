@@ -19,6 +19,7 @@
 #define HEX_EDGE      0x40
 #define HEX_OOB       0x80
 #define HEX_NONFREE   (0xFF & ~HEX_EDGE)
+#define HEX_PLAYER    0x0F
 
 /*
  * Custom specialization of std::hash for the Hex object,
@@ -49,7 +50,7 @@ public:
   void InsertRandomPiece();
   void RandomGenerateMap(int w_pieces);
   std::vector<Hex> GetActiveMap();
-  const std::pair<uint8_t, uint8_t>& GetHexState(const Hex& w_hex);
+  const std::pair<uint8_t, uint8_t>& GetHexState(const Hex& w_hex) const;
   bool SetHexState(const Hex& w_hex, const std::pair<uint8_t, uint8_t>& w_state);
   void ClearMap();
   void FindEdges();

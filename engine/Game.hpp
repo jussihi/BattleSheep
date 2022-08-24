@@ -30,7 +30,7 @@ struct LegalMoves
 class Game
 {
 public:
-  Game(const int w_players);
+  Game(const int w_players, const bool w_auto_next_move = true);
   ~Game();
 
   void Restart(bool w_keep_map);
@@ -39,7 +39,9 @@ public:
   GameState_t GetCurrGameState() { return m_game_state; };
   int GetCurrRound() { return m_round; };
   uint8_t GetCurrTurn() { return *m_curr_turn; };
-  bool MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces);
+  std::pair<uint8_t, uint8_t> GetWinner() const;
+  bool MakeMove(const Hex& w_hex_from, const Hex& w_hex_to,
+                const int w_pieces, const bool w_auto_next_turn = true);
   void FindLegalMoves();
   const std::vector<std::pair<std::pair<Hex, Hex>, int>>& GetLegalMoves();
   bool CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces);
@@ -57,4 +59,6 @@ private:
   int m_round;
   GameState_t m_game_state;
   LegalMoves m_legal_moves;
+  bool m_auto_next_move;
+  int m_empty_moves;
 };

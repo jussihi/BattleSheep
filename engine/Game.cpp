@@ -4,11 +4,13 @@
 #include <algorithm>    // std::find
 
 
-Game::Game(const int w_players) :
+Game::Game(const int w_players, const bool w_auto_next_move) :
 m_map(w_players),
 m_pieces_inserted(1),
 m_round(0),
-m_game_state(STATE_MAPGEN)
+m_game_state(STATE_MAPGEN),
+m_auto_next_move(w_auto_next_move),
+m_empty_moves(0)
 {
   for(int i= 0; i < w_players; i++)
   {
@@ -73,8 +75,46 @@ void Game::RandomGenerateMap()
   StartGameplay();
 }
 
+std::pair<uint8_t, uint8_t> Game::GetWinner() const
+{
+  /* Sanity check */
+  if(m_game_state != STATE_GAME_OVER)
+    return std::make_pair(0, 0);
+
+  std::vector<std::pair<uint8_t, uint8_t>> scores;
+  for(auto player : m_players)
+  {
+    scores.emplace_back(std::make_pair(player, static_cast<uint8_t>(0)));
+  }
+  for(auto hex : m_active_map)
+  {
+    for(auto& score : scores)
+    {
+      if(score.first == (m_map.GetHexState(hex).first & HEX_PLAYER))
+        score.second++;
+    }
+  }
+
+  /* Sort scores */
+  std::sort(scores.begin(), scores.end(), []
+  (const std::pair<uint8_t, uint8_t>& left, const std::pair<uint8_t, uint8_t>& right)
+  {
+    return left.second > right.second;
+  });
+  /* Get the difference between the first and second */
+  uint8_t score_diff = scores[0].second - scores[1].second;
+  /* If there is no difference, the game ends in a draw */
+  if(score_diff == 0)
+    return std::make_pair(0, 0);
+  return std::make_pair(scores[0].first, score_diff);
+}
+
 void Game::NextTurn(bool w_advance_round)
 {
+  /* Sanity check for game end */
+  if(m_game_state == STATE_GAME_OVER)
+    return;
+
   if(std::next(m_curr_turn) != m_players.end())
     m_curr_turn = std::next(m_curr_turn);
   else
@@ -83,9 +123,27 @@ void Game::NextTurn(bool w_advance_round)
     if(w_advance_round) m_round++;
   }
   FindLegalMoves();
+
+  if(m_legal_moves.moves.empty())
+  {
+    m_empty_moves++;
+    if(m_empty_moves >= m_players.size())
+    {
+      m_game_state = STATE_GAME_OVER;
+      return;
+    }
+    /* For GUI */
+    if(m_auto_next_move)
+      NextTurn();
+  }
+  else
+  {
+    m_empty_moves = 0;
+  }
 }
 
-bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces)
+bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to,
+                    const int w_pieces, const bool w_auto_next_turn)
 {
   /* Sanity check that we are in correct game state */
   if(m_game_state != STATE_GAMEPLAY)
@@ -115,7 +173,8 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to, const int w_piec
   m_map.SetHexState(w_hex_from, std::make_pair(*m_curr_turn, hex_pieces - w_pieces));
   m_map.SetHexState(w_hex_to,   std::make_pair(*m_curr_turn, w_pieces));
 
-  NextTurn();
+  if(w_auto_next_turn)
+    NextTurn();
 
   return true;
 }

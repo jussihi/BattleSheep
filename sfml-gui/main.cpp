@@ -410,7 +410,8 @@ int main(void)
       }
       case(STATE_GAME_OVER):
       {
-        ss_hint << "Game over!\n";
+        ss_hint << "Game over! Winner is " << player_str.at(battleSheepGame.GetWinner().first)
+                << " with " << static_cast<int>(battleSheepGame.GetWinner().second) << " points difference!\n";
         break;
       }
       default:
