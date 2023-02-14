@@ -45,7 +45,6 @@ public:
   bool IsHexBlocked(const Hex& w_hex) const;
   void FindLegalMoves();
   const std::vector<std::pair<std::pair<Hex, Hex>, int>>& GetLegalMoves();
-  bool CheckMoveLegality(const Hex& w_hex_from, const Hex& w_hex_to, const int w_pieces);
   const Map& GetMap() const { return m_map; };
 
 private:
