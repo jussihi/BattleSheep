@@ -182,6 +182,12 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to,
 bool Game::MakeMove(const Hex& w_hex_from, const int w_direction,
                     const int w_pieces, const bool w_auto_next_turn)
 {
+  /* First round, we force both hexes to be the same */
+  if(m_round == 0)
+  {
+    return MakeMove(w_hex_from, w_hex_from, 16, w_auto_next_turn);
+  }
+
   /* Traverse until the next hex is not free anymore */
   Hex hex_to = hex_neighbor(w_hex_from, w_direction);
   while(m_map.GetHexState(hex_neighbor(hex_to, w_direction)).first == HEX_FREE)
