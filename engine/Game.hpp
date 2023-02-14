@@ -42,6 +42,8 @@ public:
   std::pair<uint8_t, uint8_t> GetWinner() const;
   bool MakeMove(const Hex& w_hex_from, const Hex& w_hex_to,
                 const int w_pieces, const bool w_auto_next_turn = true);
+  bool MakeMove(const Hex& w_hex_from, const int w_direction,
+                const int w_pieces, const bool w_auto_next_turn = true);
   bool IsHexBlocked(const Hex& w_hex) const;
   void FindLegalMoves();
   const std::vector<std::pair<std::pair<Hex, Hex>, int>>& GetLegalMoves();

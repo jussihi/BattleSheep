@@ -179,6 +179,20 @@ bool Game::MakeMove(const Hex& w_hex_from, const Hex& w_hex_to,
   return true;
 }
 
+bool Game::MakeMove(const Hex& w_hex_from, const int w_direction,
+                    const int w_pieces, const bool w_auto_next_turn)
+{
+  /* Traverse until the next hex is not free anymore */
+  Hex hex_to = hex_neighbor(w_hex_from, w_direction);
+  while(m_map.GetHexState(hex_neighbor(hex_to, w_direction)).first == HEX_FREE)
+  {
+    hex_to = hex_neighbor(hex_to, w_direction);
+  }
+
+  /* Make move using the original implementation, fails if this diraction is blocked */
+  return MakeMove(w_hex_from, hex_to, w_pieces, w_auto_next_turn);
+}
+
 bool Game::IsHexBlocked(const Hex& w_hex) const
 {
   /* If this hex only has 1 piece on it, it doesn't matter if it's blocked */
